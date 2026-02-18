@@ -45,4 +45,23 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    /**
+     * Relationships ramadhan days, streak, bookmarks
+    */
+    public function ramadhanDays()
+    {
+        return $this->hasMany(RamadhanDay::class);
+    }
+
+    public function streak()
+    {
+        return $this->hasOne(Streak::class);
+    }
+
+    public function bookmarks()
+    {
+        return $this->hasMany(Bookmark::class);
+    }
+
 }

@@ -6,5 +6,21 @@ use Illuminate\Database\Eloquent\Model;
 
 class Bookmark extends Model
 {
-    //
+    protected $fillable = [
+        'user_id',
+        'ramadhan_day_id'
+    ];
+
+    /**
+     * Relationships user, ramadhan day
+    */
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function ramadhanDay()
+    {
+        return $this->belongsTo(RamadhanDay::class);
+    }
 }
