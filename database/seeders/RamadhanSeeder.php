@@ -11,7 +11,7 @@ class RamadhanSeeder extends Seeder
 {
     public function run(): void
     {
-        $user = User::first();
+        $user = User::first() ?? User::factory()->create();
 
         $start = Carbon::create(2026, 2, 18); // contoh awal ramadhan
 
