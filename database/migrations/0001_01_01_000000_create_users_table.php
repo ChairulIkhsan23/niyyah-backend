@@ -18,7 +18,7 @@ return new class extends Migration
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->string('city')->nullable();
-            $table->string('timezon')->default('Asia/Jakarta');
+            $table->string('timezone')->default('Asia/Jakarta');
             $table->rememberToken();
             $table->timestamps();
         });
