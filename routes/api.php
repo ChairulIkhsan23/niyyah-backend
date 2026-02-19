@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\RamadhanController;
+use App\Http\Controllers\Api\IslamicController;
 
 /*
 |--------------------------------------------------------------------------
@@ -99,6 +100,34 @@ Route::prefix('ramadhan')
         Route::post('/bookmarks', [RamadhanController::class, 'addBookmark'])->name('bookmarks.store');
         Route::delete('/bookmarks/{id}', [RamadhanController::class, 'deleteBookmark'])->name('bookmarks.destroy');
         
+    });
+
+
+/*
+|--------------------------------------------------------------------------
+| ISLAMIC PUBLIC API (Protected - butuh login)
+|--------------------------------------------------------------------------
+*/
+
+Route::prefix('islamic')
+    ->middleware('auth:sanctum')
+    ->group(function () {
+        
+        // Quran
+        Route::get('/quran/surah', [IslamicController::class, 'getSurah']);
+        Route::get('/quran/surah/{id}', [IslamicController::class, 'getSurahDetail']);
+        
+        // Prayer Schedule
+        Route::get('/sholat/jadwal', [IslamicController::class, 'getPrayerSchedule']);
+        Route::get('/sholat/hari-ini', [IslamicController::class, 'getTodaySchedule']);
+        
+        // Doa
+        Route::get('/doa/harian', [IslamicController::class, 'getDailyPrayers']);
+        Route::get('/doa/pagi-petang', [IslamicController::class, 'getMorningEveningPrayers']);
+        
+        // Qibla
+        Route::get('/kiblat', [IslamicController::class, 'getQiblaDirection']);
+        Route::get('/kiblat/{city}', [IslamicController::class, 'getQiblaByCity']);        
     });
 
 

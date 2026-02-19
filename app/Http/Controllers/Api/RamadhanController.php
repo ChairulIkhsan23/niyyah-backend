@@ -20,7 +20,23 @@ use Carbon\Carbon;
 class RamadhanController extends Controller
 {
     /**
-     * Get today's record
+     * @OA\Get(
+     *     path="/ramadhan/today",
+     *     summary="Get today's record",
+     *     description="Mengambil catatan ibadah untuk hari ini",
+     *     operationId="getTodayRecord",
+     *     tags={"Ramadhan - Daily"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Response(
+     *         response=200,
+     *         description="Data hari ini berhasil diambil",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="message", type="string", example="Data hari ini berhasil diambil"),
+     *             @OA\Property(property="data", type="object", nullable=true)
+     *         )
+     *     )
+     * )
      */
     public function today(Request $request)
     {
@@ -47,7 +63,38 @@ class RamadhanController extends Controller
     }
 
     /**
-     * Get specific day record
+     * @OA\Get(
+     *     path="/ramadhan/day/{date}",
+     *     summary="Get specific day record",
+     *     description="Mengambil catatan ibadah untuk tanggal tertentu",
+     *     operationId="getDayRecord",
+     *     tags={"Ramadhan - Daily"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="date",
+     *         in="path",
+     *         required=true,
+     *         description="Tanggal dalam format YYYY-MM-DD",
+     *         @OA\Schema(type="string", format="date", example="2026-02-19")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Data berhasil diambil",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="message", type="string", example="Data berhasil diambil"),
+     *             @OA\Property(property="data", type="object")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Data tidak ditemukan",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Catatan tidak ditemukan untuk tanggal ini")
+     *         )
+     *     )
+     * )
      */
     public function getDay(Request $request, $date)
     {
@@ -71,7 +118,39 @@ class RamadhanController extends Controller
     }
 
     /**
-     * Store or update daily record (puasa, shalat, dll)
+     * @OA\Post(
+     *     path="/ramadhan/day",
+     *     summary="Create or update daily record",
+     *     description="Menyimpan atau memperbarui catatan ibadah harian",
+     *     operationId="storeOrUpdateDay",
+     *     tags={"Ramadhan - Daily"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"date"},
+     *             @OA\Property(property="date", type="string", format="date", example="2026-02-19"),
+     *             @OA\Property(property="fasting", type="boolean", example=true),
+     *             @OA\Property(property="subuh", type="boolean", example=true),
+     *             @OA\Property(property="dzuhur", type="boolean", example=true),
+     *             @OA\Property(property="ashar", type="boolean", example=true),
+     *             @OA\Property(property="maghrib", type="boolean", example=true),
+     *             @OA\Property(property="isya", type="boolean", example=true),
+     *             @OA\Property(property="tarawih", type="boolean", example=true),
+     *             @OA\Property(property="quran_pages", type="integer", example=5),
+     *             @OA\Property(property="dzikir_total", type="integer", example=99)
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=201,
+     *         description="Catatan berhasil disimpan",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="message", type="string", example="Catatan harian berhasil disimpan"),
+     *             @OA\Property(property="data", type="object")
+     *         )
+     *     )
+     * )
      */
     public function storeOrUpdateDay(StoreRamadhanDayRequest $request)
     {
@@ -111,7 +190,30 @@ class RamadhanController extends Controller
     }
 
     /**
-     * Get Quran logs for a specific day
+     * @OA\Get(
+     *     path="/ramadhan/day/{ramadhanDayId}/quran",
+     *     summary="Get Quran logs",
+     *     description="Mengambil daftar log Quran untuk hari tertentu",
+     *     operationId="getQuranLogs",
+     *     tags={"Ramadhan - Quran Logs"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="ramadhanDayId",
+     *         in="path",
+     *         required=true,
+     *         description="ID hari Ramadhan",
+     *         @OA\Schema(type="integer", example=1)
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Daftar log Quran berhasil diambil",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="message", type="string", example="Daftar log Quran berhasil diambil"),
+     *             @OA\Property(property="data", type="array", @OA\Items(type="object"))
+     *         )
+     *     )
+     * )
      */
     public function getQuranLogs(Request $request, $ramadhanDayId)
     {
@@ -126,7 +228,40 @@ class RamadhanController extends Controller
     }
 
     /**
-     * Add Quran log to a day
+     * @OA\Post(
+     *     path="/ramadhan/day/{ramadhanDayId}/quran",
+     *     summary="Add Quran log",
+     *     description="Menambahkan log bacaan Quran",
+     *     operationId="addQuranLog",
+     *     tags={"Ramadhan - Quran Logs"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="ramadhanDayId",
+     *         in="path",
+     *         required=true,
+     *         description="ID hari Ramadhan",
+     *         @OA\Schema(type="integer", example=1)
+     *     ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"surah","pages","minutes"},
+     *             @OA\Property(property="surah", type="integer", example=1, description="Nomor surah (1-114)"),
+     *             @OA\Property(property="ayah", type="integer", example=1, description="Nomor ayat (opsional)"),
+     *             @OA\Property(property="pages", type="integer", example=2, description="Jumlah halaman"),
+     *             @OA\Property(property="minutes", type="integer", example=10, description="Durasi membaca (menit)")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=201,
+     *         description="Log Quran berhasil ditambahkan",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="message", type="string", example="Log Quran berhasil ditambahkan"),
+     *             @OA\Property(property="data", type="object")
+     *         )
+     *     )
+     * )
      */
     public function addQuranLog(StoreQuranLogRequest $request, $ramadhanDayId)
     {
@@ -167,7 +302,36 @@ class RamadhanController extends Controller
     }
 
     /**
-     * Delete Quran log
+     * @OA\Delete(
+     *     path="/ramadhan/day/{ramadhanDayId}/quran/{logId}",
+     *     summary="Delete Quran log",
+     *     description="Menghapus log bacaan Quran",
+     *     operationId="deleteQuranLog",
+     *     tags={"Ramadhan - Quran Logs"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="ramadhanDayId",
+     *         in="path",
+     *         required=true,
+     *         description="ID hari Ramadhan",
+     *         @OA\Schema(type="integer", example=1)
+     *     ),
+     *     @OA\Parameter(
+     *         name="logId",
+     *         in="path",
+     *         required=true,
+     *         description="ID log Quran",
+     *         @OA\Schema(type="integer", example=1)
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Log Quran berhasil dihapus",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="message", type="string", example="Log Quran berhasil dihapus")
+     *         )
+     *     )
+     * )
      */
     public function deleteQuranLog(Request $request, $ramadhanDayId, $logId)
     {
@@ -201,7 +365,30 @@ class RamadhanController extends Controller
     }
 
     /**
-     * Get dzikir logs for a specific day
+     * @OA\Get(
+     *     path="/ramadhan/day/{ramadhanDayId}/dzikir",
+     *     summary="Get dzikir logs",
+     *     description="Mengambil daftar log dzikir untuk hari tertentu",
+     *     operationId="getDzikirLogs",
+     *     tags={"Ramadhan - Dzikir Logs"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="ramadhanDayId",
+     *         in="path",
+     *         required=true,
+     *         description="ID hari Ramadhan",
+     *         @OA\Schema(type="integer", example=1)
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Daftar log dzikir berhasil diambil",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="message", type="string", example="Daftar log dzikir berhasil diambil"),
+     *             @OA\Property(property="data", type="array", @OA\Items(type="object"))
+     *         )
+     *     )
+     * )
      */
     public function getDzikirLogs(Request $request, $ramadhanDayId)
     {
@@ -216,7 +403,38 @@ class RamadhanController extends Controller
     }
 
     /**
-     * Add dzikir log to a day
+     * @OA\Post(
+     *     path="/ramadhan/day/{ramadhanDayId}/dzikir",
+     *     summary="Add dzikir log",
+     *     description="Menambahkan log dzikir",
+     *     operationId="addDzikirLog",
+     *     tags={"Ramadhan - Dzikir Logs"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="ramadhanDayId",
+     *         in="path",
+     *         required=true,
+     *         description="ID hari Ramadhan",
+     *         @OA\Schema(type="integer", example=1)
+     *     ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"type","count"},
+     *             @OA\Property(property="type", type="string", enum={"tasbih", "tahmid", "takbir", "tahlil", "istighfar"}, example="tasbih"),
+     *             @OA\Property(property="count", type="integer", example=33)
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=201,
+     *         description="Log dzikir berhasil ditambahkan",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="message", type="string", example="Log dzikir berhasil ditambahkan"),
+     *             @OA\Property(property="data", type="object")
+     *         )
+     *     )
+     * )
      */
     public function addDzikirLog(StoreDzikirLogRequest $request, $ramadhanDayId)
     {
@@ -254,7 +472,44 @@ class RamadhanController extends Controller
     }
 
     /**
-     * Update dzikir log
+     * @OA\Put(
+     *     path="/ramadhan/day/{ramadhanDayId}/dzikir/{logId}",
+     *     summary="Update dzikir log",
+     *     description="Memperbarui jumlah dzikir pada log",
+     *     operationId="updateDzikirLog",
+     *     tags={"Ramadhan - Dzikir Logs"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="ramadhanDayId",
+     *         in="path",
+     *         required=true,
+     *         description="ID hari Ramadhan",
+     *         @OA\Schema(type="integer", example=1)
+     *     ),
+     *     @OA\Parameter(
+     *         name="logId",
+     *         in="path",
+     *         required=true,
+     *         description="ID log dzikir",
+     *         @OA\Schema(type="integer", example=1)
+     *     ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"count"},
+     *             @OA\Property(property="count", type="integer", example=100)
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Log dzikir berhasil diperbarui",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="message", type="string", example="Log dzikir berhasil diperbarui"),
+     *             @OA\Property(property="data", type="object")
+     *         )
+     *     )
+     * )
      */
     public function updateDzikirLog(UpdateDzikirLogRequest $request, $ramadhanDayId, $logId)
     {
@@ -292,7 +547,36 @@ class RamadhanController extends Controller
     }
 
     /**
-     * Delete dzikir log
+     * @OA\Delete(
+     *     path="/ramadhan/day/{ramadhanDayId}/dzikir/{logId}",
+     *     summary="Delete dzikir log",
+     *     description="Menghapus log dzikir",
+     *     operationId="deleteDzikirLog",
+     *     tags={"Ramadhan - Dzikir Logs"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="ramadhanDayId",
+     *         in="path",
+     *         required=true,
+     *         description="ID hari Ramadhan",
+     *         @OA\Schema(type="integer", example=1)
+     *     ),
+     *     @OA\Parameter(
+     *         name="logId",
+     *         in="path",
+     *         required=true,
+     *         description="ID log dzikir",
+     *         @OA\Schema(type="integer", example=1)
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Log dzikir berhasil dihapus",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="message", type="string", example="Log dzikir berhasil dihapus")
+     *         )
+     *     )
+     * )
      */
     public function deleteDzikirLog(Request $request, $ramadhanDayId, $logId)
     {
@@ -324,7 +608,23 @@ class RamadhanController extends Controller
     }
 
     /**
-     * Get user bookmarks
+     * @OA\Get(
+     *     path="/ramadhan/bookmarks",
+     *     summary="Get bookmarks",
+     *     description="Mengambil daftar bookmark user",
+     *     operationId="getBookmarks",
+     *     tags={"Ramadhan - Bookmarks"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Response(
+     *         response=200,
+     *         description="Daftar bookmark berhasil diambil",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="message", type="string", example="Daftar bookmark berhasil diambil"),
+     *             @OA\Property(property="data", type="array", @OA\Items(type="object"))
+     *         )
+     *     )
+     * )
      */
     public function getBookmarks(Request $request)
     {
@@ -341,7 +641,40 @@ class RamadhanController extends Controller
     }
 
     /**
-     * Add bookmark
+     * @OA\Post(
+     *     path="/ramadhan/bookmarks",
+     *     summary="Add bookmark",
+     *     description="Menambahkan bookmark ayat baru",
+     *     operationId="addBookmark",
+     *     tags={"Ramadhan - Bookmarks"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"surah"},
+     *             @OA\Property(property="surah", type="integer", example=1, description="Nomor surah (1-114)"),
+     *             @OA\Property(property="ayah", type="integer", example=1, description="Nomor ayat (opsional)"),
+     *             @OA\Property(property="page", type="integer", example=1, description="Nomor halaman (opsional)")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=201,
+     *         description="Bookmark berhasil ditambahkan",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="message", type="string", example="Bookmark berhasil ditambahkan"),
+     *             @OA\Property(property="data", type="object")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=409,
+     *         description="Bookmark sudah ada",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Bookmark sudah ada")
+     *         )
+     *     )
+     * )
      */
     public function addBookmark(StoreBookmarkRequest $request)
     {
@@ -376,7 +709,29 @@ class RamadhanController extends Controller
     }
 
     /**
-     * Delete bookmark
+     * @OA\Delete(
+     *     path="/ramadhan/bookmarks/{id}",
+     *     summary="Delete bookmark",
+     *     description="Menghapus bookmark",
+     *     operationId="deleteBookmark",
+     *     tags={"Ramadhan - Bookmarks"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="ID bookmark",
+     *         @OA\Schema(type="integer", example=1)
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Bookmark berhasil dihapus",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="message", type="string", example="Bookmark berhasil dihapus")
+     *         )
+     *     )
+     * )
      */
     public function deleteBookmark(Request $request, $id)
     {
@@ -392,7 +747,30 @@ class RamadhanController extends Controller
     }
 
     /**
-     * Get streak information
+     * @OA\Get(
+     *     path="/ramadhan/summary/streak",
+     *     summary="Get streak information",
+     *     description="Mengambil informasi streak puasa user",
+     *     operationId="streakInfo",
+     *     tags={"Ramadhan - Summary"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Response(
+     *         response=200,
+     *         description="Data streak berhasil diambil",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="message", type="string", example="Data streak berhasil diambil"),
+     *             @OA\Property(
+     *                 property="data",
+     *                 type="object",
+     *                 @OA\Property(property="user_id", type="integer", example=1),
+     *                 @OA\Property(property="current_streak", type="integer", example=1),
+     *                 @OA\Property(property="longest_streak", type="integer", example=1),
+     *                 @OA\Property(property="last_active_date", type="string", format="date", example="2026-02-19")
+     *             )
+     *         )
+     *     )
+     * )
      */
     public function streakInfo(Request $request)
     {
@@ -413,7 +791,41 @@ class RamadhanController extends Controller
     }
 
     /**
-     * Monthly summary
+     * @OA\Get(
+     *     path="/ramadhan/summary/month",
+     *     summary="Get monthly summary",
+     *     description="Mengambil ringkasan ibadah bulan ini",
+     *     operationId="monthlySummary",
+     *     tags={"Ramadhan - Summary"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Response(
+     *         response=200,
+     *         description="Ringkasan bulanan berhasil diambil",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="message", type="string", example="Ringkasan bulanan berhasil diambil"),
+     *             @OA\Property(
+     *                 property="data",
+     *                 type="object",
+     *                 @OA\Property(property="bulan", type="string", example="February 2026"),
+     *                 @OA\Property(property="total_hari", type="integer", example=1),
+     *                 @OA\Property(property="total_puasa", type="integer", example=1),
+     *                 @OA\Property(
+     *                     property="shalat",
+     *                     type="object",
+     *                     @OA\Property(property="subuh", type="integer", example=1),
+     *                     @OA\Property(property="dzuhur", type="integer", example=1),
+     *                     @OA\Property(property="ashar", type="integer", example=1),
+     *                     @OA\Property(property="maghrib", type="integer", example=1),
+     *                     @OA\Property(property="isya", type="integer", example=1),
+     *                     @OA\Property(property="tarawih", type="integer", example=1)
+     *                 ),
+     *                 @OA\Property(property="total_halaman_quran", type="integer", example=5),
+     *                 @OA\Property(property="total_dzikir", type="integer", example=165)
+     *             )
+     *         )
+     *     )
+     * )
      */
     public function monthlySummary(Request $request)
     {
@@ -448,7 +860,50 @@ class RamadhanController extends Controller
     }
 
     /**
-     * Yearly summary
+     * @OA\Get(
+     *     path="/ramadhan/summary/year/{year}",
+     *     summary="Get yearly summary",
+     *     description="Mengambil ringkasan ibadah untuk tahun Ramadhan tertentu",
+     *     operationId="yearlySummary",
+     *     tags={"Ramadhan - Summary"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="year",
+     *         in="path",
+     *         required=true,
+     *         description="Tahun Ramadhan (contoh: 2026)",
+     *         @OA\Schema(
+     *             type="integer",
+     *             example=2026,
+     *             minimum=2020,
+     *             maximum=2030
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Ringkasan tahunan berhasil diambil",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="message", type="string", example="Ringkasan tahunan berhasil diambil"),
+     *             @OA\Property(
+     *                 property="data",
+     *                 type="object",
+     *                 @OA\Property(property="tahun", type="integer", example=2026),
+     *                 @OA\Property(property="total_hari", type="integer", example=30),
+     *                 @OA\Property(property="total_puasa", type="integer", example=28),
+     *                 @OA\Property(property="total_halaman_quran", type="integer", example=150),
+     *                 @OA\Property(property="total_dzikir", type="integer", example=5000)
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthenticated",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Unauthenticated.")
+     *         )
+     *     )
+     * )
      */
     public function yearlySummary(Request $request, $year)
     {
@@ -472,7 +927,11 @@ class RamadhanController extends Controller
     }
 
     /**
-     * Private method to update streak
+     * Update streak based on fasting activity
+     * 
+     * @param int $userId
+     * @param string $date
+     * @return void
      */
     private function updateStreak($userId, $date)
     {
