@@ -1,0 +1,2545 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "Ramadhan API Documentation",
+        "description": "API untuk tracking ibadah Ramadhan, manajemen user, dan fitur islami",
+        "contact": {
+            "name": "Ramadhan API Team",
+            "email": "admin@example.com"
+        },
+        "license": {
+            "name": "MIT",
+            "url": "https://opensource.org/licenses/MIT"
+        },
+        "version": "1.0.0"
+    },
+    "servers": [
+        {
+            "url": "http://127.0.0.1:8000/api",
+            "description": "Local Development Server"
+        },
+        {
+            "url": "https://api.example.com",
+            "description": "Production Server"
+        }
+    ],
+    "paths": {
+        "/api": {},
+        "/api/auth": {},
+        "/api/user": {},
+        "/api/ramadhan": {},
+        "/api/islamic": {},
+        "/auth": {},
+        "/user": {},
+        "/ramadhan": {},
+        "/islamic": {},
+        "/api/auth/register": {},
+        "/api/auth/login": {},
+        "/api/auth/logout": {},
+        "/api/auth/me": {},
+        "/api/user/profile": {},
+        "/api/user/avatar": {},
+        "/api/user/password": {},
+        "/api/user/devices": {},
+        "/api/user/logout-all": {},
+        "/api/user/account": {},
+        "/api/ramadhan/daily": {},
+        "/api/ramadhan/quran-logs": {},
+        "/api/ramadhan/dzikir-logs": {},
+        "/api/ramadhan/summary": {},
+        "/api/ramadhan/bookmarks": {},
+        "/api/islamic/quran": {},
+        "/api/islamic/sholat": {},
+        "/api/islamic/doa": {},
+        "/api/islamic/kiblat": {},
+        "/auth/register": {
+            "post": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Register new user",
+                "description": "Mendaftarkan user baru dan mengembalikan token akses",
+                "operationId": "register",
+                "requestBody": {
+                    "description": "Data user baru",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "name",
+                                    "email",
+                                    "password",
+                                    "password_confirmation",
+                                    "city"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "description": "Nama lengkap",
+                                        "type": "string",
+                                        "example": "John Doe"
+                                    },
+                                    "email": {
+                                        "description": "Email user",
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "john@example.com"
+                                    },
+                                    "password": {
+                                        "description": "Password minimal 6 karakter",
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "123456"
+                                    },
+                                    "password_confirmation": {
+                                        "description": "Konfirmasi password",
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "123456"
+                                    },
+                                    "city": {
+                                        "description": "Kota domisili",
+                                        "type": "string",
+                                        "example": "Bandung"
+                                    },
+                                    "timezone": {
+                                        "description": "Zona waktu",
+                                        "type": "string",
+                                        "default": "Asia/Jakarta",
+                                        "example": "Asia/Jakarta"
+                                    },
+                                    "gender": {
+                                        "description": "Jenis kelamin (opsional)",
+                                        "type": "string",
+                                        "enum": [
+                                            "male",
+                                            "female"
+                                        ],
+                                        "example": "male"
+                                    },
+                                    "date_of_birth": {
+                                        "description": "Tanggal lahir (opsional)",
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2005-03-21"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Registrasi berhasil",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Registration successful"
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "user": {
+                                                    "properties": {
+                                                        "id": {
+                                                            "type": "integer",
+                                                            "example": 1
+                                                        },
+                                                        "name": {
+                                                            "type": "string",
+                                                            "example": "John Doe"
+                                                        },
+                                                        "email": {
+                                                            "type": "string",
+                                                            "example": "john@example.com"
+                                                        },
+                                                        "city": {
+                                                            "type": "string",
+                                                            "example": "Bandung"
+                                                        },
+                                                        "timezone": {
+                                                            "type": "string",
+                                                            "example": "Asia/Jakarta"
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                },
+                                                "access_token": {
+                                                    "type": "string",
+                                                    "example": "1|laravel_sanctum_token_here"
+                                                },
+                                                "token_type": {
+                                                    "type": "string",
+                                                    "example": "Bearer"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validasi error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "The given data was invalid."
+                                        },
+                                        "errors": {
+                                            "properties": {
+                                                "email": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string",
+                                                        "example": "The email has already been taken."
+                                                    }
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/login": {
+            "post": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Login user",
+                "description": "Autentikasi user dan mengembalikan token akses",
+                "operationId": "login",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "email",
+                                    "password"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "john@example.com"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "123456"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Login berhasil",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Login successful"
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "user": {
+                                                    "type": "object"
+                                                },
+                                                "access_token": {
+                                                    "type": "string",
+                                                    "example": "1|laravel_sanctum_token_here"
+                                                },
+                                                "token_type": {
+                                                    "type": "string",
+                                                    "example": "Bearer"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Kredensial salah",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "The provided credentials are incorrect."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/logout": {
+            "post": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Logout user",
+                "description": "Menghapus token akses saat ini",
+                "operationId": "logout",
+                "responses": {
+                    "200": {
+                        "description": "Logout berhasil",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Successfully logged out"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/auth/me": {
+            "get": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Get authenticated user",
+                "description": "Mengambil data user yang sedang login",
+                "operationId": "me",
+                "responses": {
+                    "200": {
+                        "description": "Data user berhasil diambil",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "User profile retrieved successfully"
+                                        },
+                                        "data": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/islamic/quran/surah": {
+            "get": {
+                "tags": [
+                    "Islamic - Quran"
+                ],
+                "summary": "Get all surah",
+                "description": "Mengambil daftar semua surah dalam Al-Quran",
+                "operationId": "getAllSurah",
+                "responses": {
+                    "200": {
+                        "description": "Daftar surah berhasil diambil",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Daftar surah berhasil diambil"
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/islamic/quran/surah/{id}": {
+            "get": {
+                "tags": [
+                    "Islamic - Quran"
+                ],
+                "summary": "Get surah detail",
+                "description": "Mengambil detail surah berdasarkan ID",
+                "operationId": "getSurahDetail",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID surah (1-114)",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Detail surah berhasil diambil",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Detail surah berhasil diambil"
+                                        },
+                                        "data": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Surah tidak ditemukan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Surah tidak ditemukan"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/islamic/sholat/jadwal": {
+            "get": {
+                "tags": [
+                    "Islamic - Sholat"
+                ],
+                "summary": "Get prayer schedule",
+                "description": "Mengambil jadwal sholat bulanan untuk kota tertentu",
+                "operationId": "getPrayerSchedule",
+                "parameters": [
+                    {
+                        "name": "city",
+                        "in": "query",
+                        "description": "Nama kota (default dari profil user)",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "bandung"
+                        }
+                    },
+                    {
+                        "name": "month",
+                        "in": "query",
+                        "description": "Bulan (1-12, default bulan saat ini)",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 2
+                        }
+                    },
+                    {
+                        "name": "year",
+                        "in": "query",
+                        "description": "Tahun (default tahun saat ini)",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 2026
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Jadwal sholat berhasil diambil",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Jadwal sholat berhasil diambil"
+                                        },
+                                        "data": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/islamic/sholat/hari-ini": {
+            "get": {
+                "tags": [
+                    "Islamic - Sholat"
+                ],
+                "summary": "Get today's prayer schedule",
+                "description": "Mengambil jadwal sholat untuk hari ini",
+                "operationId": "getTodaySchedule",
+                "parameters": [
+                    {
+                        "name": "city",
+                        "in": "query",
+                        "description": "Nama kota (default dari profil user)",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "bandung"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Jadwal sholat hari ini berhasil diambil",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Jadwal sholat hari ini berhasil diambil"
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "date": {
+                                                    "type": "string",
+                                                    "example": "Kamis, 19/02/2026"
+                                                },
+                                                "imsak": {
+                                                    "type": "string",
+                                                    "example": "04:28"
+                                                },
+                                                "subuh": {
+                                                    "type": "string",
+                                                    "example": "04:38"
+                                                },
+                                                "terbit": {
+                                                    "type": "string",
+                                                    "example": "05:47"
+                                                },
+                                                "dhuha": {
+                                                    "type": "string",
+                                                    "example": "06:19"
+                                                },
+                                                "dzuhur": {
+                                                    "type": "string",
+                                                    "example": "12:07"
+                                                },
+                                                "ashar": {
+                                                    "type": "string",
+                                                    "example": "15:16"
+                                                },
+                                                "maghrib": {
+                                                    "type": "string",
+                                                    "example": "18:20"
+                                                },
+                                                "isya": {
+                                                    "type": "string",
+                                                    "example": "19:26"
+                                                }
+                                            },
+                                            "type": "object",
+                                            "nullable": true
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/islamic/doa/harian": {
+            "get": {
+                "tags": [
+                    "Islamic - Doa"
+                ],
+                "summary": "Get daily prayers",
+                "description": "Mengambil kumpulan doa harian",
+                "operationId": "getDailyPrayers",
+                "responses": {
+                    "200": {
+                        "description": "Doa harian berhasil diambil",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Doa harian berhasil diambil"
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/islamic/doa/pagi-petang": {
+            "get": {
+                "tags": [
+                    "Islamic - Doa"
+                ],
+                "summary": "Get morning/evening prayers",
+                "description": "Mengambil kumpulan doa pagi dan petang",
+                "operationId": "getMorningEveningPrayers",
+                "responses": {
+                    "200": {
+                        "description": "Doa pagi petang berhasil diambil",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Doa pagi petang berhasil diambil"
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/islamic/kiblat": {
+            "get": {
+                "tags": [
+                    "Islamic - Kiblat"
+                ],
+                "summary": "Get Qibla direction",
+                "description": "Mengambil arah kiblat berdasarkan kota user",
+                "operationId": "getQiblaDirection",
+                "parameters": [
+                    {
+                        "name": "city",
+                        "in": "query",
+                        "description": "Nama kota (default dari profil user)",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "bandung"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Arah kiblat berhasil diambil",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Arah kiblat berhasil diambil"
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "direction": {
+                                                    "type": "number",
+                                                    "format": "float",
+                                                    "example": 295.1672751348155
+                                                },
+                                                "latitude": {
+                                                    "type": "number",
+                                                    "format": "float",
+                                                    "example": -6.9175
+                                                },
+                                                "longitude": {
+                                                    "type": "number",
+                                                    "format": "float",
+                                                    "example": 107.6191
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Koordinat kota tidak ditemukan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Koordinat kota tidak ditemukan"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/ramadhan/today": {
+            "get": {
+                "tags": [
+                    "Ramadhan - Daily"
+                ],
+                "summary": "Get today's record",
+                "description": "Mengambil catatan ibadah untuk hari ini",
+                "operationId": "getTodayRecord",
+                "responses": {
+                    "200": {
+                        "description": "Data hari ini berhasil diambil",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Data hari ini berhasil diambil"
+                                        },
+                                        "data": {
+                                            "type": "object",
+                                            "nullable": true
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/ramadhan/day/{date}": {
+            "get": {
+                "tags": [
+                    "Ramadhan - Daily"
+                ],
+                "summary": "Get specific day record",
+                "description": "Mengambil catatan ibadah untuk tanggal tertentu",
+                "operationId": "getDayRecord",
+                "parameters": [
+                    {
+                        "name": "date",
+                        "in": "path",
+                        "description": "Tanggal dalam format YYYY-MM-DD",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "date",
+                            "example": "2026-02-19"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Data berhasil diambil",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Data berhasil diambil"
+                                        },
+                                        "data": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Data tidak ditemukan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Catatan tidak ditemukan untuk tanggal ini"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/ramadhan/day": {
+            "post": {
+                "tags": [
+                    "Ramadhan - Daily"
+                ],
+                "summary": "Create or update daily record",
+                "description": "Menyimpan atau memperbarui catatan ibadah harian",
+                "operationId": "storeOrUpdateDay",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "date"
+                                ],
+                                "properties": {
+                                    "date": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2026-02-19"
+                                    },
+                                    "fasting": {
+                                        "type": "boolean",
+                                        "example": true
+                                    },
+                                    "subuh": {
+                                        "type": "boolean",
+                                        "example": true
+                                    },
+                                    "dzuhur": {
+                                        "type": "boolean",
+                                        "example": true
+                                    },
+                                    "ashar": {
+                                        "type": "boolean",
+                                        "example": true
+                                    },
+                                    "maghrib": {
+                                        "type": "boolean",
+                                        "example": true
+                                    },
+                                    "isya": {
+                                        "type": "boolean",
+                                        "example": true
+                                    },
+                                    "tarawih": {
+                                        "type": "boolean",
+                                        "example": true
+                                    },
+                                    "quran_pages": {
+                                        "type": "integer",
+                                        "example": 5
+                                    },
+                                    "dzikir_total": {
+                                        "type": "integer",
+                                        "example": 99
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Catatan berhasil disimpan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Catatan harian berhasil disimpan"
+                                        },
+                                        "data": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/ramadhan/day/{ramadhanDayId}/quran": {
+            "get": {
+                "tags": [
+                    "Ramadhan - Quran Logs"
+                ],
+                "summary": "Get Quran logs",
+                "description": "Mengambil daftar log Quran untuk hari tertentu",
+                "operationId": "getQuranLogs",
+                "parameters": [
+                    {
+                        "name": "ramadhanDayId",
+                        "in": "path",
+                        "description": "ID hari Ramadhan",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Daftar log Quran berhasil diambil",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Daftar log Quran berhasil diambil"
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Ramadhan - Quran Logs"
+                ],
+                "summary": "Add Quran log",
+                "description": "Menambahkan log bacaan Quran",
+                "operationId": "addQuranLog",
+                "parameters": [
+                    {
+                        "name": "ramadhanDayId",
+                        "in": "path",
+                        "description": "ID hari Ramadhan",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "surah",
+                                    "pages",
+                                    "minutes"
+                                ],
+                                "properties": {
+                                    "surah": {
+                                        "description": "Nomor surah (1-114)",
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "ayah": {
+                                        "description": "Nomor ayat (opsional)",
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "pages": {
+                                        "description": "Jumlah halaman",
+                                        "type": "integer",
+                                        "example": 2
+                                    },
+                                    "minutes": {
+                                        "description": "Durasi membaca (menit)",
+                                        "type": "integer",
+                                        "example": 10
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Log Quran berhasil ditambahkan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Log Quran berhasil ditambahkan"
+                                        },
+                                        "data": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/ramadhan/day/{ramadhanDayId}/quran/{logId}": {
+            "delete": {
+                "tags": [
+                    "Ramadhan - Quran Logs"
+                ],
+                "summary": "Delete Quran log",
+                "description": "Menghapus log bacaan Quran",
+                "operationId": "deleteQuranLog",
+                "parameters": [
+                    {
+                        "name": "ramadhanDayId",
+                        "in": "path",
+                        "description": "ID hari Ramadhan",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    },
+                    {
+                        "name": "logId",
+                        "in": "path",
+                        "description": "ID log Quran",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Log Quran berhasil dihapus",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Log Quran berhasil dihapus"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/ramadhan/day/{ramadhanDayId}/dzikir": {
+            "get": {
+                "tags": [
+                    "Ramadhan - Dzikir Logs"
+                ],
+                "summary": "Get dzikir logs",
+                "description": "Mengambil daftar log dzikir untuk hari tertentu",
+                "operationId": "getDzikirLogs",
+                "parameters": [
+                    {
+                        "name": "ramadhanDayId",
+                        "in": "path",
+                        "description": "ID hari Ramadhan",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Daftar log dzikir berhasil diambil",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Daftar log dzikir berhasil diambil"
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Ramadhan - Dzikir Logs"
+                ],
+                "summary": "Add dzikir log",
+                "description": "Menambahkan log dzikir",
+                "operationId": "addDzikirLog",
+                "parameters": [
+                    {
+                        "name": "ramadhanDayId",
+                        "in": "path",
+                        "description": "ID hari Ramadhan",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "type",
+                                    "count"
+                                ],
+                                "properties": {
+                                    "type": {
+                                        "type": "string",
+                                        "enum": [
+                                            "tasbih",
+                                            "tahmid",
+                                            "takbir",
+                                            "tahlil",
+                                            "istighfar"
+                                        ],
+                                        "example": "tasbih"
+                                    },
+                                    "count": {
+                                        "type": "integer",
+                                        "example": 33
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Log dzikir berhasil ditambahkan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Log dzikir berhasil ditambahkan"
+                                        },
+                                        "data": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/ramadhan/day/{ramadhanDayId}/dzikir/{logId}": {
+            "put": {
+                "tags": [
+                    "Ramadhan - Dzikir Logs"
+                ],
+                "summary": "Update dzikir log",
+                "description": "Memperbarui jumlah dzikir pada log",
+                "operationId": "updateDzikirLog",
+                "parameters": [
+                    {
+                        "name": "ramadhanDayId",
+                        "in": "path",
+                        "description": "ID hari Ramadhan",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    },
+                    {
+                        "name": "logId",
+                        "in": "path",
+                        "description": "ID log dzikir",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "count"
+                                ],
+                                "properties": {
+                                    "count": {
+                                        "type": "integer",
+                                        "example": 100
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Log dzikir berhasil diperbarui",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Log dzikir berhasil diperbarui"
+                                        },
+                                        "data": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Ramadhan - Dzikir Logs"
+                ],
+                "summary": "Delete dzikir log",
+                "description": "Menghapus log dzikir",
+                "operationId": "deleteDzikirLog",
+                "parameters": [
+                    {
+                        "name": "ramadhanDayId",
+                        "in": "path",
+                        "description": "ID hari Ramadhan",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    },
+                    {
+                        "name": "logId",
+                        "in": "path",
+                        "description": "ID log dzikir",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Log dzikir berhasil dihapus",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Log dzikir berhasil dihapus"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/ramadhan/bookmarks": {
+            "get": {
+                "tags": [
+                    "Ramadhan - Bookmarks"
+                ],
+                "summary": "Get bookmarks",
+                "description": "Mengambil daftar bookmark user",
+                "operationId": "getBookmarks",
+                "responses": {
+                    "200": {
+                        "description": "Daftar bookmark berhasil diambil",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Daftar bookmark berhasil diambil"
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Ramadhan - Bookmarks"
+                ],
+                "summary": "Add bookmark",
+                "description": "Menambahkan bookmark ayat baru",
+                "operationId": "addBookmark",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "surah"
+                                ],
+                                "properties": {
+                                    "surah": {
+                                        "description": "Nomor surah (1-114)",
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "ayah": {
+                                        "description": "Nomor ayat (opsional)",
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "page": {
+                                        "description": "Nomor halaman (opsional)",
+                                        "type": "integer",
+                                        "example": 1
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Bookmark berhasil ditambahkan",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Bookmark berhasil ditambahkan"
+                                        },
+                                        "data": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Bookmark sudah ada",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Bookmark sudah ada"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/ramadhan/bookmarks/{id}": {
+            "delete": {
+                "tags": [
+                    "Ramadhan - Bookmarks"
+                ],
+                "summary": "Delete bookmark",
+                "description": "Menghapus bookmark",
+                "operationId": "deleteBookmark",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID bookmark",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Bookmark berhasil dihapus",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Bookmark berhasil dihapus"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/ramadhan/summary/streak": {
+            "get": {
+                "tags": [
+                    "Ramadhan - Summary"
+                ],
+                "summary": "Get streak information",
+                "description": "Mengambil informasi streak puasa user",
+                "operationId": "streakInfo",
+                "responses": {
+                    "200": {
+                        "description": "Data streak berhasil diambil",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Data streak berhasil diambil"
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "user_id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "current_streak": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "longest_streak": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "last_active_date": {
+                                                    "type": "string",
+                                                    "format": "date",
+                                                    "example": "2026-02-19"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/ramadhan/summary/month": {
+            "get": {
+                "tags": [
+                    "Ramadhan - Summary"
+                ],
+                "summary": "Get monthly summary",
+                "description": "Mengambil ringkasan ibadah bulan ini",
+                "operationId": "monthlySummary",
+                "responses": {
+                    "200": {
+                        "description": "Ringkasan bulanan berhasil diambil",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Ringkasan bulanan berhasil diambil"
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "bulan": {
+                                                    "type": "string",
+                                                    "example": "February 2026"
+                                                },
+                                                "total_hari": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "total_puasa": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "shalat": {
+                                                    "properties": {
+                                                        "subuh": {
+                                                            "type": "integer",
+                                                            "example": 1
+                                                        },
+                                                        "dzuhur": {
+                                                            "type": "integer",
+                                                            "example": 1
+                                                        },
+                                                        "ashar": {
+                                                            "type": "integer",
+                                                            "example": 1
+                                                        },
+                                                        "maghrib": {
+                                                            "type": "integer",
+                                                            "example": 1
+                                                        },
+                                                        "isya": {
+                                                            "type": "integer",
+                                                            "example": 1
+                                                        },
+                                                        "tarawih": {
+                                                            "type": "integer",
+                                                            "example": 1
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                },
+                                                "total_halaman_quran": {
+                                                    "type": "integer",
+                                                    "example": 5
+                                                },
+                                                "total_dzikir": {
+                                                    "type": "integer",
+                                                    "example": 165
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/ramadhan/summary/year/{year}": {
+            "get": {
+                "tags": [
+                    "Ramadhan - Summary"
+                ],
+                "summary": "Get yearly summary",
+                "description": "Mengambil ringkasan ibadah untuk tahun Ramadhan tertentu",
+                "operationId": "yearlySummary",
+                "parameters": [
+                    {
+                        "name": "year",
+                        "in": "path",
+                        "description": "Tahun Ramadhan (contoh: 2026)",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "maximum": 2030,
+                            "minimum": 2020,
+                            "example": 2026
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Ringkasan tahunan berhasil diambil",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Ringkasan tahunan berhasil diambil"
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "tahun": {
+                                                    "type": "integer",
+                                                    "example": 2026
+                                                },
+                                                "total_hari": {
+                                                    "type": "integer",
+                                                    "example": 30
+                                                },
+                                                "total_puasa": {
+                                                    "type": "integer",
+                                                    "example": 28
+                                                },
+                                                "total_halaman_quran": {
+                                                    "type": "integer",
+                                                    "example": 150
+                                                },
+                                                "total_dzikir": {
+                                                    "type": "integer",
+                                                    "example": 5000
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Unauthenticated."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/user/profile": {
+            "get": {
+                "tags": [
+                    "User Profile"
+                ],
+                "summary": "Get user profile",
+                "description": "Mengambil data profil user yang sedang login",
+                "operationId": "getProfile",
+                "responses": {
+                    "200": {
+                        "description": "Profil berhasil diambil",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "User profile retrieved successfully"
+                                        },
+                                        "data": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "User Profile"
+                ],
+                "summary": "Update user profile",
+                "description": "Memperbarui data profil user",
+                "operationId": "updateProfile",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "name",
+                                    "email"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "John Updated"
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "john.updated@example.com"
+                                    },
+                                    "city": {
+                                        "type": "string",
+                                        "example": "Jakarta"
+                                    },
+                                    "timezone": {
+                                        "type": "string",
+                                        "example": "Asia/Jakarta"
+                                    },
+                                    "gender": {
+                                        "type": "string",
+                                        "enum": [
+                                            "male",
+                                            "female"
+                                        ],
+                                        "example": "male"
+                                    },
+                                    "date_of_birth": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2005-03-21"
+                                    },
+                                    "bio": {
+                                        "type": "string",
+                                        "example": "Saya seorang developer"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Profil berhasil diperbarui",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Profile updated successfully"
+                                        },
+                                        "data": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/user/avatar": {
+            "post": {
+                "tags": [
+                    "User Profile"
+                ],
+                "summary": "Update user avatar",
+                "description": "Mengupload foto profil user",
+                "operationId": "updateAvatar",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "avatar"
+                                ],
+                                "properties": {
+                                    "avatar": {
+                                        "description": "File gambar (jpeg, png, jpg, gif) max 2MB",
+                                        "type": "string",
+                                        "format": "binary"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Avatar berhasil diupload",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Avatar updated successfully"
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "avatar_url": {
+                                                    "type": "string",
+                                                    "example": "http://127.0.0.1:8000/storage/avatars/filename.jpg"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validasi error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "The given data was invalid."
+                                        },
+                                        "errors": {
+                                            "properties": {
+                                                "avatar": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string",
+                                                        "example": "The avatar field must be an image."
+                                                    }
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/user/password": {
+            "put": {
+                "tags": [
+                    "User Profile"
+                ],
+                "summary": "Update user password",
+                "description": "Memperbarui password user",
+                "operationId": "updatePassword",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "current_password",
+                                    "new_password",
+                                    "new_password_confirmation"
+                                ],
+                                "properties": {
+                                    "current_password": {
+                                        "description": "Password saat ini",
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "123456"
+                                    },
+                                    "new_password": {
+                                        "description": "Password baru minimal 6 karakter",
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "1234567"
+                                    },
+                                    "new_password_confirmation": {
+                                        "description": "Konfirmasi password baru",
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "1234567"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Password berhasil diperbarui",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Password updated successfully"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validasi error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "The given data was invalid."
+                                        },
+                                        "errors": {
+                                            "properties": {
+                                                "current_password": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string",
+                                                        "example": "The current password is incorrect."
+                                                    }
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/user/devices": {
+            "get": {
+                "tags": [
+                    "Device Management"
+                ],
+                "summary": "Get user devices",
+                "description": "Mengambil daftar perangkat/token yang sedang aktif",
+                "operationId": "getDevices",
+                "responses": {
+                    "200": {
+                        "description": "Daftar perangkat berhasil diambil",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer",
+                                                        "example": 1
+                                                    },
+                                                    "name": {
+                                                        "type": "string",
+                                                        "example": "PostmanRuntime/7.51.1"
+                                                    },
+                                                    "last_used_at": {
+                                                        "type": "string",
+                                                        "format": "datetime",
+                                                        "example": "2026-02-19T10:30:00.000000Z"
+                                                    },
+                                                    "created_at": {
+                                                        "type": "string",
+                                                        "format": "datetime",
+                                                        "example": "2026-02-18T23:31:12.000000Z"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/user/devices/{tokenId}": {
+            "delete": {
+                "tags": [
+                    "Device Management"
+                ],
+                "summary": "Revoke device",
+                "description": "Menghapus token/perangkat tertentu",
+                "operationId": "revokeDevice",
+                "parameters": [
+                    {
+                        "name": "tokenId",
+                        "in": "path",
+                        "description": "ID token yang akan direvoke",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Device berhasil direvoke",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Device revoked successfully"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Token tidak ditemukan"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/user/logout-all": {
+            "post": {
+                "tags": [
+                    "Device Management"
+                ],
+                "summary": "Logout from all devices",
+                "description": "Menghapus semua token (logout dari semua perangkat)",
+                "operationId": "logoutAllDevices",
+                "responses": {
+                    "200": {
+                        "description": "Berhasil logout dari semua perangkat",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Logged out from all devices successfully"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/user/account": {
+            "delete": {
+                "tags": [
+                    "User Profile"
+                ],
+                "summary": "Delete user account",
+                "description": "Menghapus akun user beserta semua data terkait",
+                "operationId": "deleteAccount",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "password"
+                                ],
+                                "properties": {
+                                    "password": {
+                                        "description": "Konfirmasi password",
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "123456"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Akun berhasil dihapus",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Account deleted successfully"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        }
+    },
+    "components": {
+        "securitySchemes": {
+            "bearerAuth": {
+                "type": "http",
+                "description": "Enter your Bearer token in the format: Bearer {token}",
+                "bearerFormat": "JWT",
+                "scheme": "bearer"
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "Authentication",
+            "description": "API Endpoints untuk registrasi, login, dan logout"
+        },
+        {
+            "name": "User Profile",
+            "description": "API Endpoints untuk manajemen profil user"
+        },
+        {
+            "name": "Device Management",
+            "description": "API Endpoints untuk manajemen perangkat"
+        },
+        {
+            "name": "Ramadhan - Daily",
+            "description": "API Endpoints untuk catatan harian Ramadhan"
+        },
+        {
+            "name": "Ramadhan - Quran Logs",
+            "description": "API Endpoints untuk log bacaan Quran"
+        },
+        {
+            "name": "Ramadhan - Dzikir Logs",
+            "description": "API Endpoints untuk log dzikir"
+        },
+        {
+            "name": "Ramadhan - Summary",
+            "description": "API Endpoints untuk ringkasan dan statistik"
+        },
+        {
+            "name": "Ramadhan - Bookmarks",
+            "description": "API Endpoints untuk bookmark ayat"
+        },
+        {
+            "name": "Islamic - Quran",
+            "description": "API Endpoints untuk data Al-Quran"
+        },
+        {
+            "name": "Islamic - Sholat",
+            "description": "API Endpoints untuk jadwal sholat"
+        },
+        {
+            "name": "Islamic - Doa",
+            "description": "API Endpoints untuk doa-doa"
+        },
+        {
+            "name": "Islamic - Kiblat",
+            "description": "API Endpoints untuk arah kiblat"
+        }
+    ]
+}
