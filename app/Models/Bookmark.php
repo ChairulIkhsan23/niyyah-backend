@@ -8,7 +8,9 @@ class Bookmark extends Model
 {
     protected $fillable = [
         'user_id',
-        'ramadhan_day_id'
+        'surah',
+        'ayah',
+        'page'
     ];
 
     /**

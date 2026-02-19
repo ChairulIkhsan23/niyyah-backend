@@ -21,6 +21,17 @@ class RamadhanDay extends Model
         'dzikir_total'
     ];
 
+    protected $casts = [
+        'date' => 'date',
+        'fasting' => 'boolean',
+        'subuh' => 'boolean',
+        'dzuhur' => 'boolean',
+        'ashar' => 'boolean',
+        'maghrib' => 'boolean',
+        'isya' => 'boolean',
+        'tarawih' => 'boolean'
+    ];
+
     /**
      * Relationships user, quran logs, dzikir logs
     */

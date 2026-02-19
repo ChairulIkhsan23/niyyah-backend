@@ -8,10 +8,10 @@ class DzikirLog extends Model
 {
     protected $fillable = [
         'ramadhan_day_id',
-        'dzikir_name',
+        'type',
         'count'
     ];
-    
+
     /**
      * Relationships ramadhan day
     */
