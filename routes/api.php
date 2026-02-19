@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\GoogleAuthController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\RamadhanController;
 use App\Http\Controllers\Api\IslamicController;
@@ -19,6 +20,8 @@ Route::prefix('auth')->group(function () {
     Route::post('/login', [AuthController::class, 'login']);
 });
 
+// Google Sign-In route
+Route::post('/auth/google', [GoogleAuthController::class, 'googleSignIn']);
 
 /*
 |--------------------------------------------------------------------------
