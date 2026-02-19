@@ -9,6 +9,7 @@ class QuranLog extends Model
     protected $fillable = [
         'ramadhan_day_id',
         'surah',
+        'ayah',
         'pages',
         'minutes'
     ];

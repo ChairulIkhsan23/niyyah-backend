@@ -63,4 +63,76 @@ class QuranApiService extends BaseApiService
             return $response['search'] ?? [];
         }, 3600); // Cache search for 1 hour only
     }
+
+    // ============ METHOD BARU UNTUK TRACKER ============
+
+    /**
+     * Get surah info for dropdown/selector
+     */
+    public function getSurahListForSelector()
+    {
+        $surah = $this->getAllSurah();
+        
+        return array_map(function($item) {
+            return [
+                'id' => $item['id'],
+                'name' => $item['name_simple'] ?? $item['name_arabic'] ?? 'Surah ' . $item['id'],
+                'name_arabic' => $item['name_arabic'] ?? '',
+                'verses_count' => $item['verses_count'] ?? 0,
+                'revelation_place' => $item['revelation_place'] ?? 'makkah'
+            ];
+        }, $surah);
+    }
+
+    /**
+     * Get surah detail with basic info for bookmark display
+     */
+    public function getSurahBasicInfo(int $surahId)
+    {
+        $surah = $this->getSurah($surahId);
+        
+        if (!$surah) {
+            return null;
+        }
+        
+        return [
+            'id' => $surah['id'],
+            'name' => $surah['name_simple'] ?? $surah['name_arabic'] ?? 'Surah ' . $surah['id'],
+            'name_arabic' => $surah['name_arabic'] ?? '',
+            'verses_count' => $surah['verses_count'] ?? 0,
+            'translated_name' => $surah['translated_name']['name'] ?? ''
+        ];
+    }
+
+    /**
+     * Get verse text for a specific ayah
+     */
+    public function getVerseText(int $surahId, int $verseNumber)
+    {
+        $cacheKey = "verse_text_{$surahId}_{$verseNumber}";
+        
+        return $this->getCachedOrFetch($cacheKey, function () use ($surahId, $verseNumber) {
+            $response = $this->makeRequest('get', "quran/verses/uthmani", [
+                'query' => [
+                    'chapter_number' => $surahId,
+                    'verse_number' => $verseNumber,
+                    'limit' => 1
+                ]
+            ]);
+            
+            $verse = $response['verses'][0] ?? null;
+            
+            if ($verse) {
+                return [
+                    'text_arabic' => $verse['text_uthmani'] ?? $verse['text'] ?? '',
+                    'surah_id' => $surahId,
+                    'verse_number' => $verseNumber,
+                    'juz' => $verse['juz_number'] ?? null,
+                    'page' => $verse['page_number'] ?? null
+                ];
+            }
+            
+            return null;
+        }, 86400 * 30); // Cache 30 hari
+    }
 }

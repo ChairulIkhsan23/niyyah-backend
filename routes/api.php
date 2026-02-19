@@ -75,6 +75,8 @@ Route::prefix('ramadhan')
         Route::get('/day/{date}', [RamadhanController::class, 'getDay'])->name('day.show');
         Route::post('/day', [RamadhanController::class, 'storeOrUpdateDay'])->name('day.store');
         
+        Route::get('/quran/surah-list', [RamadhanController::class, 'getSurahList'])->name('quran.surah-list');
+        
         // Quran logs
         Route::prefix('/day/{ramadhanDayId}/quran')->name('quran.')->group(function () {
             Route::get('/', [RamadhanController::class, 'getQuranLogs'])->name('index');
@@ -100,6 +102,7 @@ Route::prefix('ramadhan')
         Route::post('/bookmarks', [RamadhanController::class, 'addBookmark'])->name('bookmarks.store');
         Route::delete('/bookmarks/{id}', [RamadhanController::class, 'deleteBookmark'])->name('bookmarks.destroy');
         
+
     });
 
 

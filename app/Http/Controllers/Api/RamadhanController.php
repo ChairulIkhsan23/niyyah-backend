@@ -13,12 +13,21 @@ use App\Models\QuranLog;
 use App\Models\DzikirLog;
 use App\Models\Streak;
 use App\Models\Bookmark;
+use App\Services\QuranApiService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 
 class RamadhanController extends Controller
 {
+    protected $quranService;
+    
+    public function __construct(QuranApiService $quranService)
+    {
+        $this->quranService = $quranService;
+    }
+
     /**
      * @OA\Get(
      *     path="/ramadhan/today",
@@ -33,7 +42,41 @@ class RamadhanController extends Controller
      *         @OA\JsonContent(
      *             @OA\Property(property="success", type="boolean", example=true),
      *             @OA\Property(property="message", type="string", example="Data hari ini berhasil diambil"),
-     *             @OA\Property(property="data", type="object", nullable=true)
+     *             @OA\Property(property="data", type="object", nullable=true,
+     *                 @OA\Property(property="id", type="integer", example=1),
+     *                 @OA\Property(property="date", type="string", format="date", example="2026-02-19"),
+     *                 @OA\Property(property="fasting", type="boolean", example=true),
+     *                 @OA\Property(property="subuh", type="boolean", example=true),
+     *                 @OA\Property(property="dzuhur", type="boolean", example=true),
+     *                 @OA\Property(property="ashar", type="boolean", example=true),
+     *                 @OA\Property(property="maghrib", type="boolean", example=true),
+     *                 @OA\Property(property="isya", type="boolean", example=true),
+     *                 @OA\Property(property="tarawih", type="boolean", example=true),
+     *                 @OA\Property(property="quran_pages", type="integer", example=5),
+     *                 @OA\Property(property="dzikir_total", type="integer", example=99),
+     *                 @OA\Property(
+     *                     property="quran_logs",
+     *                     type="array",
+     *                     @OA\Items(
+     *                         @OA\Property(property="id", type="integer"),
+     *                         @OA\Property(property="surah", type="integer"),
+     *                         @OA\Property(property="ayah", type="integer", nullable=true),
+     *                         @OA\Property(property="pages", type="integer"),
+     *                         @OA\Property(property="minutes", type="integer"),
+     *                         @OA\Property(property="surah_name", type="string", example="Al-Fatihah"),
+     *                         @OA\Property(property="surah_name_arabic", type="string", example="الفاتحة")
+     *                     )
+     *                 ),
+     *                 @OA\Property(
+     *                     property="dzikir_logs",
+     *                     type="array",
+     *                     @OA\Items(
+     *                         @OA\Property(property="id", type="integer"),
+     *                         @OA\Property(property="type", type="string", enum={"tasbih", "tahmid", "takbir", "tahlil", "istighfar"}),
+     *                         @OA\Property(property="count", type="integer")
+     *                     )
+     *                 )
+     *             )
      *         )
      *     )
      * )
@@ -53,6 +96,10 @@ class RamadhanController extends Controller
                 'message' => 'Belum ada catatan untuk hari ini',
                 'data' => null
             ], 200);
+        }
+        
+        foreach ($day->quranLogs as $log) {
+            $this->enrichQuranLog($log);
         }
         
         return response()->json([
@@ -110,11 +157,71 @@ class RamadhanController extends Controller
             ], 404);
         }
         
+        foreach ($day->quranLogs as $log) {
+            $this->enrichQuranLog($log);
+        }
+        
         return response()->json([
             'success' => true,
             'message' => 'Data berhasil diambil',
             'data' => $day
         ], 200);
+    }
+
+    /**
+     * @OA\Get(
+     *     path="/ramadhan/quran/surah-list",
+     *     summary="Get surah list for selector",
+     *     description="Mengambil daftar surah untuk dropdown",
+     *     operationId="getSurahList",
+     *     tags={"Ramadhan - Quran Logs"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Response(
+     *         response=200,
+     *         description="Daftar surah berhasil diambil",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(
+     *                 property="data",
+     *                 type="array",
+     *                 @OA\Items(
+     *                     @OA\Property(property="id", type="integer", example=1),
+     *                     @OA\Property(property="name", type="string", example="Al-Fatihah"),
+     *                     @OA\Property(property="name_arabic", type="string", example="الفاتحة"),
+     *                     @OA\Property(property="verses_count", type="integer", example=7),
+     *                     @OA\Property(property="revelation_place", type="string", example="makkah")
+     *                 )
+     *             )
+     *         )
+     *     )
+     * )
+     */
+    public function getSurahList()
+    {
+        try {
+            $surah = $this->quranService->getAllSurah();
+            
+            $formatted = array_map(function($item) {
+                return [
+                    'id' => $item['id'],
+                    'name' => $item['name_simple'] ?? 'Surah ' . $item['id'],
+                    'name_arabic' => $item['name_arabic'] ?? '',
+                    'verses_count' => $item['verses_count'] ?? 0,
+                    'revelation_place' => $item['revelation_place'] ?? 'makkah'
+                ];
+            }, $surah);
+            
+            return response()->json([
+                'success' => true,
+                'data' => $formatted
+            ]);
+            
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal mengambil daftar surah'
+            ], 500);
+        }
     }
 
     /**
@@ -149,6 +256,18 @@ class RamadhanController extends Controller
      *             @OA\Property(property="message", type="string", example="Catatan harian berhasil disimpan"),
      *             @OA\Property(property="data", type="object")
      *         )
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Validasi error",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="The given data was invalid."),
+     *             @OA\Property(
+     *                 property="errors",
+     *                 type="object",
+     *                 @OA\Property(property="date", type="array", @OA\Items(type="string", example="The date field is required."))
+     *             )
+     *         )
      *     )
      * )
      */
@@ -177,7 +296,6 @@ class RamadhanController extends Controller
             ]
         );
 
-        // Update streak if fasting
         if ($validated['fasting'] ?? false) {
             $this->updateStreak($request->user()->id, $validated['date']);
         }
@@ -210,8 +328,25 @@ class RamadhanController extends Controller
      *         @OA\JsonContent(
      *             @OA\Property(property="success", type="boolean", example=true),
      *             @OA\Property(property="message", type="string", example="Daftar log Quran berhasil diambil"),
-     *             @OA\Property(property="data", type="array", @OA\Items(type="object"))
+     *             @OA\Property(
+     *                 property="data",
+     *                 type="array",
+     *                 @OA\Items(
+     *                     @OA\Property(property="id", type="integer", example=1),
+     *                     @OA\Property(property="surah", type="integer", example=1),
+     *                     @OA\Property(property="ayah", type="integer", example=1, nullable=true),
+     *                     @OA\Property(property="pages", type="integer", example=2),
+     *                     @OA\Property(property="minutes", type="integer", example=10),
+     *                     @OA\Property(property="surah_name", type="string", example="Al-Fatihah"),
+     *                     @OA\Property(property="surah_name_arabic", type="string", example="الفاتحة"),
+     *                     @OA\Property(property="surah_verses_count", type="integer", example=7)
+     *                 )
+     *             )
      *         )
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Data tidak ditemukan"
      *     )
      * )
      */
@@ -220,10 +355,16 @@ class RamadhanController extends Controller
         $day = RamadhanDay::where('user_id', $request->user()->id)
             ->findOrFail($ramadhanDayId);
             
+        $logs = $day->quranLogs;
+        
+        foreach ($logs as $log) {
+            $this->enrichQuranLog($log);
+        }
+            
         return response()->json([
             'success' => true,
             'message' => 'Daftar log Quran berhasil diambil',
-            'data' => $day->quranLogs
+            'data' => $logs
         ], 200);
     }
 
@@ -260,6 +401,18 @@ class RamadhanController extends Controller
      *             @OA\Property(property="message", type="string", example="Log Quran berhasil ditambahkan"),
      *             @OA\Property(property="data", type="object")
      *         )
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Validasi error",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="The given data was invalid."),
+     *             @OA\Property(
+     *                 property="errors",
+     *                 type="object",
+     *                 @OA\Property(property="surah", type="array", @OA\Items(type="string", example="The surah field is required."))
+     *             )
+     *         )
      *     )
      * )
      */
@@ -280,10 +433,11 @@ class RamadhanController extends Controller
                 'minutes' => $validated['minutes']
             ]);
 
-            // Update total pages in ramadhan_day
             $day->increment('quran_pages', $validated['pages']);
 
             DB::commit();
+            
+            $this->enrichQuranLog($log);
 
             return response()->json([
                 'success' => true,
@@ -295,8 +449,7 @@ class RamadhanController extends Controller
             DB::rollBack();
             return response()->json([
                 'success' => false,
-                'message' => 'Gagal menambahkan log Quran',
-                'error' => $e->getMessage()
+                'message' => 'Gagal menambahkan log Quran'
             ], 500);
         }
     }
@@ -330,6 +483,10 @@ class RamadhanController extends Controller
      *             @OA\Property(property="success", type="boolean", example=true),
      *             @OA\Property(property="message", type="string", example="Log Quran berhasil dihapus")
      *         )
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Data tidak ditemukan"
      *     )
      * )
      */
@@ -343,9 +500,7 @@ class RamadhanController extends Controller
             
         DB::beginTransaction();
         try {
-            // Decrement total pages
             $day->decrement('quran_pages', $log->pages);
-            
             $log->delete();
 
             DB::commit();
@@ -385,8 +540,20 @@ class RamadhanController extends Controller
      *         @OA\JsonContent(
      *             @OA\Property(property="success", type="boolean", example=true),
      *             @OA\Property(property="message", type="string", example="Daftar log dzikir berhasil diambil"),
-     *             @OA\Property(property="data", type="array", @OA\Items(type="object"))
+     *             @OA\Property(
+     *                 property="data",
+     *                 type="array",
+     *                 @OA\Items(
+     *                     @OA\Property(property="id", type="integer", example=1),
+     *                     @OA\Property(property="type", type="string", example="tasbih"),
+     *                     @OA\Property(property="count", type="integer", example=33)
+     *                 )
+     *             )
      *         )
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Data tidak ditemukan"
      *     )
      * )
      */
@@ -433,6 +600,18 @@ class RamadhanController extends Controller
      *             @OA\Property(property="message", type="string", example="Log dzikir berhasil ditambahkan"),
      *             @OA\Property(property="data", type="object")
      *         )
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Validasi error",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="The given data was invalid."),
+     *             @OA\Property(
+     *                 property="errors",
+     *                 type="object",
+     *                 @OA\Property(property="type", type="array", @OA\Items(type="string", example="The type field is required."))
+     *             )
+     *         )
      *     )
      * )
      */
@@ -451,7 +630,6 @@ class RamadhanController extends Controller
                 'count' => $validated['count']
             ]);
 
-            // Update total dzikir in ramadhan_day
             $day->increment('dzikir_total', $validated['count']);
 
             DB::commit();
@@ -508,6 +686,10 @@ class RamadhanController extends Controller
      *             @OA\Property(property="message", type="string", example="Log dzikir berhasil diperbarui"),
      *             @OA\Property(property="data", type="object")
      *         )
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Data tidak ditemukan"
      *     )
      * )
      */
@@ -526,7 +708,6 @@ class RamadhanController extends Controller
             $oldCount = $log->count;
             $log->update(['count' => $validated['count']]);
             
-            // Adjust total dzikir
             $day->increment('dzikir_total', $validated['count'] - $oldCount);
 
             DB::commit();
@@ -575,6 +756,10 @@ class RamadhanController extends Controller
      *             @OA\Property(property="success", type="boolean", example=true),
      *             @OA\Property(property="message", type="string", example="Log dzikir berhasil dihapus")
      *         )
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Data tidak ditemukan"
      *     )
      * )
      */
@@ -621,7 +806,18 @@ class RamadhanController extends Controller
      *         @OA\JsonContent(
      *             @OA\Property(property="success", type="boolean", example=true),
      *             @OA\Property(property="message", type="string", example="Daftar bookmark berhasil diambil"),
-     *             @OA\Property(property="data", type="array", @OA\Items(type="object"))
+     *             @OA\Property(
+     *                 property="data",
+     *                 type="array",
+     *                 @OA\Items(
+     *                     @OA\Property(property="id", type="integer", example=1),
+     *                     @OA\Property(property="surah", type="integer", example=1),
+     *                     @OA\Property(property="ayah", type="integer", example=1, nullable=true),
+     *                     @OA\Property(property="page", type="integer", example=1, nullable=true),
+     *                     @OA\Property(property="surah_name", type="string", example="Al-Fatihah"),
+     *                     @OA\Property(property="surah_name_arabic", type="string", example="الفاتحة")
+     *                 )
+     *             )
      *         )
      *     )
      * )
@@ -632,6 +828,10 @@ class RamadhanController extends Controller
             ->orderBy('surah')
             ->orderBy('ayah')
             ->get();
+
+        foreach ($bookmarks as $bookmark) {
+            $this->enrichBookmark($bookmark);
+        }
 
         return response()->json([
             'success' => true,
@@ -680,7 +880,6 @@ class RamadhanController extends Controller
     {
         $validated = $request->validated();
 
-        // Check if bookmark already exists
         $exists = Bookmark::where('user_id', $request->user()->id)
             ->where('surah', $validated['surah'])
             ->where('ayah', $validated['ayah'] ?? null)
@@ -700,6 +899,8 @@ class RamadhanController extends Controller
             'ayah' => $validated['ayah'] ?? null,
             'page' => $validated['page'] ?? null
         ]);
+
+        $this->enrichBookmark($bookmark);
 
         return response()->json([
             'success' => true,
@@ -730,6 +931,10 @@ class RamadhanController extends Controller
      *             @OA\Property(property="success", type="boolean", example=true),
      *             @OA\Property(property="message", type="string", example="Bookmark berhasil dihapus")
      *         )
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Data tidak ditemukan"
      *     )
      * )
      */
@@ -871,13 +1076,8 @@ class RamadhanController extends Controller
      *         name="year",
      *         in="path",
      *         required=true,
-     *         description="Tahun Ramadhan (contoh: 2026)",
-     *         @OA\Schema(
-     *             type="integer",
-     *             example=2026,
-     *             minimum=2020,
-     *             maximum=2030
-     *         )
+     *         description="Tahun Ramadhan",
+     *         @OA\Schema(type="integer", example=2026)
      *     ),
      *     @OA\Response(
      *         response=200,
@@ -894,13 +1094,6 @@ class RamadhanController extends Controller
      *                 @OA\Property(property="total_halaman_quran", type="integer", example=150),
      *                 @OA\Property(property="total_dzikir", type="integer", example=5000)
      *             )
-     *         )
-     *     ),
-     *     @OA\Response(
-     *         response=401,
-     *         description="Unauthenticated",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="message", type="string", example="Unauthenticated.")
      *         )
      *     )
      * )
@@ -927,11 +1120,56 @@ class RamadhanController extends Controller
     }
 
     /**
+     * Enrich quran log with surah info from QuranApiService
+     */
+    private function enrichQuranLog($log)
+    {
+        if (!$log || !$log->surah) {
+            return $log;
+        }
+        
+        try {
+            $surahInfo = $this->quranService->getSurah($log->surah);
+            
+            if ($surahInfo) {
+                $log->surah_name = $surahInfo['name_simple'] ?? 'Surah ' . $log->surah;
+                $log->surah_name_arabic = $surahInfo['name_arabic'] ?? '';
+                $log->surah_verses_count = $surahInfo['verses_count'] ?? 0;
+            }
+            
+        } catch (\Exception $e) {
+            $log->surah_name = 'Surah ' . $log->surah;
+        }
+        
+        return $log;
+    }
+
+    /**
+     * Enrich bookmark with surah info from QuranApiService
+     */
+    private function enrichBookmark($bookmark)
+    {
+        if (!$bookmark || !$bookmark->surah) {
+            return $bookmark;
+        }
+        
+        try {
+            $surahInfo = $this->quranService->getSurah($bookmark->surah);
+            
+            if ($surahInfo) {
+                $bookmark->surah_name = $surahInfo['name_simple'] ?? 'Surah ' . $bookmark->surah;
+                $bookmark->surah_name_arabic = $surahInfo['name_arabic'] ?? '';
+            }
+            
+        } catch (\Exception $e) {
+            $bookmark->surah_name = 'Surah ' . $bookmark->surah;
+        }
+        
+        return $bookmark;
+    }
+
+    /**
      * Update streak based on fasting activity
-     * 
-     * @param int $userId
-     * @param string $date
-     * @return void
      */
     private function updateStreak($userId, $date)
     {
@@ -941,15 +1179,12 @@ class RamadhanController extends Controller
         $lastActive = $streak->last_active_date ? Carbon::parse($streak->last_active_date) : null;
 
         if (!$lastActive) {
-            // First streak
             $streak->current_streak = 1;
             $streak->longest_streak = 1;
         } elseif ($lastActive->copy()->addDay()->isSameDay($currentDate)) {
-            // Consecutive day
             $streak->current_streak++;
             $streak->longest_streak = max($streak->longest_streak, $streak->current_streak);
         } elseif (!$lastActive->isSameDay($currentDate)) {
-            // Streak broken (missed a day)
             $streak->current_streak = 1;
         }
 

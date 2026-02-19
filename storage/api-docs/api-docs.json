@@ -870,6 +870,109 @@
                                             "example": "Data hari ini berhasil diambil"
                                         },
                                         "data": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "date": {
+                                                    "type": "string",
+                                                    "format": "date",
+                                                    "example": "2026-02-19"
+                                                },
+                                                "fasting": {
+                                                    "type": "boolean",
+                                                    "example": true
+                                                },
+                                                "subuh": {
+                                                    "type": "boolean",
+                                                    "example": true
+                                                },
+                                                "dzuhur": {
+                                                    "type": "boolean",
+                                                    "example": true
+                                                },
+                                                "ashar": {
+                                                    "type": "boolean",
+                                                    "example": true
+                                                },
+                                                "maghrib": {
+                                                    "type": "boolean",
+                                                    "example": true
+                                                },
+                                                "isya": {
+                                                    "type": "boolean",
+                                                    "example": true
+                                                },
+                                                "tarawih": {
+                                                    "type": "boolean",
+                                                    "example": true
+                                                },
+                                                "quran_pages": {
+                                                    "type": "integer",
+                                                    "example": 5
+                                                },
+                                                "dzikir_total": {
+                                                    "type": "integer",
+                                                    "example": 99
+                                                },
+                                                "quran_logs": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "properties": {
+                                                            "id": {
+                                                                "type": "integer"
+                                                            },
+                                                            "surah": {
+                                                                "type": "integer"
+                                                            },
+                                                            "ayah": {
+                                                                "type": "integer",
+                                                                "nullable": true
+                                                            },
+                                                            "pages": {
+                                                                "type": "integer"
+                                                            },
+                                                            "minutes": {
+                                                                "type": "integer"
+                                                            },
+                                                            "surah_name": {
+                                                                "type": "string",
+                                                                "example": "Al-Fatihah"
+                                                            },
+                                                            "surah_name_arabic": {
+                                                                "type": "string",
+                                                                "example": "الفاتحة"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                },
+                                                "dzikir_logs": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "properties": {
+                                                            "id": {
+                                                                "type": "integer"
+                                                            },
+                                                            "type": {
+                                                                "type": "string",
+                                                                "enum": [
+                                                                    "tasbih",
+                                                                    "tahmid",
+                                                                    "takbir",
+                                                                    "tahlil",
+                                                                    "istighfar"
+                                                                ]
+                                                            },
+                                                            "count": {
+                                                                "type": "integer"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                }
+                                            },
                                             "type": "object",
                                             "nullable": true
                                         }
@@ -945,6 +1048,67 @@
                                         "message": {
                                             "type": "string",
                                             "example": "Catatan tidak ditemukan untuk tanggal ini"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/ramadhan/quran/surah-list": {
+            "get": {
+                "tags": [
+                    "Ramadhan - Quran Logs"
+                ],
+                "summary": "Get surah list for selector",
+                "description": "Mengambil daftar surah untuk dropdown",
+                "operationId": "getSurahList",
+                "responses": {
+                    "200": {
+                        "description": "Daftar surah berhasil diambil",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer",
+                                                        "example": 1
+                                                    },
+                                                    "name": {
+                                                        "type": "string",
+                                                        "example": "Al-Fatihah"
+                                                    },
+                                                    "name_arabic": {
+                                                        "type": "string",
+                                                        "example": "الفاتحة"
+                                                    },
+                                                    "verses_count": {
+                                                        "type": "integer",
+                                                        "example": 7
+                                                    },
+                                                    "revelation_place": {
+                                                        "type": "string",
+                                                        "example": "makkah"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
                                         }
                                     },
                                     "type": "object"
@@ -1047,6 +1211,34 @@
                                 }
                             }
                         }
+                    },
+                    "422": {
+                        "description": "Validasi error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "The given data was invalid."
+                                        },
+                                        "errors": {
+                                            "properties": {
+                                                "date": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string",
+                                                        "example": "The date field is required."
+                                                    }
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     }
                 },
                 "security": [
@@ -1094,6 +1286,41 @@
                                         "data": {
                                             "type": "array",
                                             "items": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer",
+                                                        "example": 1
+                                                    },
+                                                    "surah": {
+                                                        "type": "integer",
+                                                        "example": 1
+                                                    },
+                                                    "ayah": {
+                                                        "type": "integer",
+                                                        "example": 1,
+                                                        "nullable": true
+                                                    },
+                                                    "pages": {
+                                                        "type": "integer",
+                                                        "example": 2
+                                                    },
+                                                    "minutes": {
+                                                        "type": "integer",
+                                                        "example": 10
+                                                    },
+                                                    "surah_name": {
+                                                        "type": "string",
+                                                        "example": "Al-Fatihah"
+                                                    },
+                                                    "surah_name_arabic": {
+                                                        "type": "string",
+                                                        "example": "الفاتحة"
+                                                    },
+                                                    "surah_verses_count": {
+                                                        "type": "integer",
+                                                        "example": 7
+                                                    }
+                                                },
                                                 "type": "object"
                                             }
                                         }
@@ -1102,6 +1329,9 @@
                                 }
                             }
                         }
+                    },
+                    "404": {
+                        "description": "Data tidak ditemukan"
                     }
                 },
                 "security": [
@@ -1189,6 +1419,34 @@
                                 }
                             }
                         }
+                    },
+                    "422": {
+                        "description": "Validasi error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "The given data was invalid."
+                                        },
+                                        "errors": {
+                                            "properties": {
+                                                "surah": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string",
+                                                        "example": "The surah field is required."
+                                                    }
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     }
                 },
                 "security": [
@@ -1248,6 +1506,9 @@
                                 }
                             }
                         }
+                    },
+                    "404": {
+                        "description": "Data tidak ditemukan"
                     }
                 },
                 "security": [
@@ -1295,6 +1556,20 @@
                                         "data": {
                                             "type": "array",
                                             "items": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer",
+                                                        "example": 1
+                                                    },
+                                                    "type": {
+                                                        "type": "string",
+                                                        "example": "tasbih"
+                                                    },
+                                                    "count": {
+                                                        "type": "integer",
+                                                        "example": 33
+                                                    }
+                                                },
                                                 "type": "object"
                                             }
                                         }
@@ -1303,6 +1578,9 @@
                                 }
                             }
                         }
+                    },
+                    "404": {
+                        "description": "Data tidak ditemukan"
                     }
                 },
                 "security": [
@@ -1377,6 +1655,34 @@
                                             "example": "Log dzikir berhasil ditambahkan"
                                         },
                                         "data": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validasi error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "The given data was invalid."
+                                        },
+                                        "errors": {
+                                            "properties": {
+                                                "type": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string",
+                                                        "example": "The type field is required."
+                                                    }
+                                                }
+                                            },
                                             "type": "object"
                                         }
                                     },
@@ -1465,6 +1771,9 @@
                                 }
                             }
                         }
+                    },
+                    "404": {
+                        "description": "Data tidak ditemukan"
                     }
                 },
                 "security": [
@@ -1522,6 +1831,9 @@
                                 }
                             }
                         }
+                    },
+                    "404": {
+                        "description": "Data tidak ditemukan"
                     }
                 },
                 "security": [
@@ -1557,6 +1869,34 @@
                                         "data": {
                                             "type": "array",
                                             "items": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer",
+                                                        "example": 1
+                                                    },
+                                                    "surah": {
+                                                        "type": "integer",
+                                                        "example": 1
+                                                    },
+                                                    "ayah": {
+                                                        "type": "integer",
+                                                        "example": 1,
+                                                        "nullable": true
+                                                    },
+                                                    "page": {
+                                                        "type": "integer",
+                                                        "example": 1,
+                                                        "nullable": true
+                                                    },
+                                                    "surah_name": {
+                                                        "type": "string",
+                                                        "example": "Al-Fatihah"
+                                                    },
+                                                    "surah_name_arabic": {
+                                                        "type": "string",
+                                                        "example": "الفاتحة"
+                                                    }
+                                                },
                                                 "type": "object"
                                             }
                                         }
@@ -1702,6 +2042,9 @@
                                 }
                             }
                         }
+                    },
+                    "404": {
+                        "description": "Data tidak ditemukan"
                     }
                 },
                 "security": [
@@ -1873,12 +2216,10 @@
                     {
                         "name": "year",
                         "in": "path",
-                        "description": "Tahun Ramadhan (contoh: 2026)",
+                        "description": "Tahun Ramadhan",
                         "required": true,
                         "schema": {
                             "type": "integer",
-                            "maximum": 2030,
-                            "minimum": 2020,
                             "example": 2026
                         }
                     }
@@ -1922,22 +2263,6 @@
                                                 }
                                             },
                                             "type": "object"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthenticated",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "message": {
-                                            "type": "string",
-                                            "example": "Unauthenticated."
                                         }
                                     },
                                     "type": "object"
